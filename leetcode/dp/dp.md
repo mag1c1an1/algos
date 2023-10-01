@@ -1,4 +1,5 @@
 # dp
+
 198
 70
 746
@@ -18,12 +19,7 @@
 1458
 97
 
-
 ## group one
-
-1671
-354
-1626
 
 ### longest-increasing-subsequence
 
@@ -146,6 +142,42 @@ public:
         return ans;
     }
 };
+// binary
+class Solution {
+int bs(int n, function<bool(int)> f){
+    int l = 0, r= n;
+    while( l < r) {
+        int mid = (l+r)/2;
+        if(f(mid)) {
+            r = mid;
+        } else {
+            l = mid  +1;
+        }
+    }
+    return l;
+}
+
+public:
+    int findNumberOfLIS(vector<int>& nums) {
+        vector<vector<int>> d, cnt;
+        for(auto v  : nums ){ 
+            int i  = bs(d.size(),[&](int i) {return d[i].back() >= v;});
+            int c = 1;
+            if(i>0) {
+               int k = bs(d[i-1].size(),[&](int k) {return d[i-1][k] < v;}); 
+               c = cnt[i-1].back() - cnt[i-1][k];
+            }
+            if( i == d.size()) {
+                d.push_back({v});
+                cnt.push_back({0,c});
+            }else {
+                d[i].push_back(v);
+                cnt[i].push_back(cnt[i].back()+c);
+            }
+        }
+    return cnt.back().back();
+    }
+};
 ```
 
 ### find-the-longest-valid-obstacle-course-at-each-position/
@@ -171,7 +203,9 @@ public:
     }
 };
 ```
-minimum-number-of-removals-to-make-mountain-array
+
+### minimum-number-of-removals-to-make-mountain-array
+
 ```c++
 class Solution {
 public:
@@ -203,6 +237,250 @@ public:
             ans = max(ans,finc[i] + fdec[i]-1);
         }
         return n-ans;
+    }
+};
+```
+
+### russian-doll-envelopes
+
+```c++
+class Solution {
+public:
+    int maxEnvelopes(vector<vector<int>>& envelopes) {
+        int n = envelopes.size();
+        sort(envelopes.begin(),envelopes.end(),[](vector<int> &lhs,vector<int>rhs){
+            if(lhs[0] == rhs[0]) return lhs[1] > rhs[1];
+            else return lhs[0] < rhs[0];
+            });
+            vector<int> g;
+       for(int i = 0;i<n;++i){
+           auto it = lower_bound(g.begin(), g.end(), envelopes[i][1]);
+           if(it == g.end()){
+               g.push_back(envelopes[i][1]);
+           }else {
+               *it= envelopes[i][1];
+           }
+       } 
+        return g.size();
+    }
+};
+```
+
+### best-team-with-no-conflicts
+
+```c++
+class Solution {
+public:
+    int bestTeamScore(vector<int>& scores, vector<int>& ages) {
+       int n = scores.size();
+       pair<int,int> a[n];
+       for(int i = 0;i<n;++i){
+           a[i] = {scores[i],ages[i]};
+       }
+       sort(a,a+n);
+       int f[n];memset(f, 0, sizeof(f));
+       for(int i = 0;i<n;++i){
+           for(int j = 0;j<i;++j){
+               if(a[j].second <= a[i].second) {
+                   f[i] = max(f[i],f[j]);
+               }
+           }
+          f[i] += a[i].first;
+       }
+       return *max_element(f, f+n);
+    }
+
+};
+```
+
+## group two
+
+### best-time-to-buy-and-sell-stock
+
+```c++
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        int inf = 1e9;
+        int minprice = inf,maxp = 0;
+        for(int p:prices) {
+            maxp = max(maxp,p-minprice);
+            minprice = min(p,minprice);
+        }
+        return maxp;
+    }
+};
+```
+
+```c++
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        int n  = prices.size();
+        return dfs(prices,n-1,false); 
+    }
+    int dfs(vector<int> &prices,int i, bool hold) {
+        if(i < 0) {
+            if(hold) return -1e8;
+            else return 0;
+        }
+        if(hold) {
+            return max(dfs(prices,i-1,true),dfs(prices,i-1,false)-prices[i]);
+        }
+        return max(dfs(prices,i-1,false),dfs(prices,i-1,true)+prices[i]);
+    }
+};
+// dp
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        int n  = prices.size();
+        int f[n+1][2] ;
+        for(int i = 0;i<=n;++i ) {
+            for(int j = 0;j<2;++j) {
+                f[i][j] = 0;
+            }
+        }
+        f[0][1] = -1e8;
+        for(int i = 0; i < n; ++ i ){
+            f[i+1][0] = max(f[i][0],f[i][1]+prices[i]);
+           f[i+1][1] = max(f[i][1],f[i][0]-prices[i]); 
+        }
+        return f[n][0]; 
+    }
+};
+// opt
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        int n  = prices.size();
+        int f0 = 0;
+        int f1 = -1e8;
+        int nf0;
+        for(auto v : prices) {
+           nf0 = max(f0,f1+v);
+            f1 = max(f1,f0-v);
+            f0 = nf0;
+        }
+        return f0;
+    }
+};
+
+```
+
+
+### best-time-to-buy-and-sell-stock-with-cooldown
+
+```c++
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+       int n = prices.size();
+       int f[n+2][2] ;
+      for(int i = 0;i<n+2;++i) {
+          for(int j = 0;j<2;++j){
+              f[i][j] = 0;
+          }
+      } 
+      f[0][1] = -1e8;
+      f[1][1] = -1e8;
+       for(int i =0 ;i<n;i++ ){
+          f[i+2][1] = max(f[i+1][1],f[i][0]-prices[i]);
+          f[i+2][0] = max(f[i+1][0],f[i+1][1] + prices[i]);
+       }
+       return f[n+1][0];
+    }
+};
+//opt
+class Solution {
+public:
+    int maxProfit(vector<int>& prices) {
+        int n = prices.size();
+        int p = 0;
+        int f0 = 0;
+        int f1 = -1e8; 
+        for(int i =0 ;i<n;i++ ){
+            int tmpf1 = max(f1, p - prices[i]);
+            int tmpf0 = max(f0, f1 + prices[i]);
+            int tmpp = f0;
+            f1 = tmpf1;
+            f0 = tmpf0;
+            p = tmpp; 
+        }
+        return f0;
+    }
+};
+```
+
+### best-time-to-buy-and-sell-stock-iv
+
+```python
+class Solution:
+    def maxProfit(self, k: int, prices: List[int]) -> int:
+        n = len(prices)
+        @cache
+        def dfs(i,j,hold):
+            if j < 0:
+                return -inf
+            if i < 0:
+               return -inf if hold else 0 
+            if hold :
+                return max(dfs(i-1,j,True), dfs(i-1,j-1,False)-prices[i])
+            return max(dfs(i-1,j,False), dfs(i-1,j,True) + prices[i])
+        return dfs(n-1,k,False)
+```
+
+### best-time-to-buy-and-sell-stock-iii/
+
+```python
+class Solution:
+    def maxProfit(self, prices: List[int]) -> int:
+        n = len(prices)
+        f = [[-inf] * 2 for _ in range(4)]
+        for j in range(1,4):
+            f[j][0] = 0
+        for i,p in enumerate(prices):
+            for j in range(3,0,-1):
+                f[j][1] = max(f[j][1],f[j][0] - p)
+                f[j][0] = max(f[j][0],f[j-1][1] + p)
+        return f[3][0]
+
+```
+
+### best-time-to-buy-and-sell-stock-with-transaction-fee
+
+```c++
+class Solution {
+public:
+    int maxProfit(vector<int>& prices, int fee) {
+        int n = prices.size();
+        int f0 = 0;
+        int f1 =  -1e8;
+        for(int i =0 ;i<n;i++){
+            int tmpf0 = max(f0,f1+prices[i]-fee);
+            int tmpf1 = max(f1,f0-prices[i]);
+            f0 = tmpf0;
+            f1 = tmpf1;
+        }
+        return f0;
+    }
+};
+```
+
+### maximum-alternating-subsequence-sum
+
+```c++
+class Solution {
+public:
+    long long maxAlternatingSum(vector<int>& nums) {
+        int n = nums.size();
+        long long f0 = 0,f1 = -1e8;
+        for (int i = 0; i < n; ++i) {
+            long long nf0 = max(f0,f1 - nums[i]);
+            f1 = max(f1,f0+nums[i]);
+            f0 = nf0;
+        }
+        return max(f0,f1);
     }
 };
 ```
