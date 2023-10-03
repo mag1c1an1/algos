@@ -368,7 +368,6 @@ public:
 
 ```
 
-
 ### best-time-to-buy-and-sell-stock-with-cooldown
 
 ```c++
@@ -447,40 +446,77 @@ class Solution:
 
 ```
 
-### best-time-to-buy-and-sell-stock-with-transaction-fee
+## group threee
 
-```c++
-class Solution {
-public:
-    int maxProfit(vector<int>& prices, int fee) {
-        int n = prices.size();
-        int f0 = 0;
-        int f1 =  -1e8;
-        for(int i =0 ;i<n;i++){
-            int tmpf0 = max(f0,f1+prices[i]-fee);
-            int tmpf1 = max(f1,f0-prices[i]);
-            f0 = tmpf0;
-            f1 = tmpf1;
-        }
-        return f0;
-    }
-};
+1312 1771 1547 1000
+
+longest-palindromic-subsequence
+
+```python
+class Solution:
+    def longestPalindromeSubseq(self, s: str) -> int:
+        n = len(s)
+        @cache
+        def dfs(i,j):
+            if i>j:
+                return 0
+            if i==j: 
+                return 1
+            if s[i] == s[j]:
+                return dfs(i+1,j-1) + 2
+            return max(dfs(i+1,j),dfs(i,j-1))
+        return dfs(0,n-1)
 ```
 
-### maximum-alternating-subsequence-sum
+### minimum-score-triangulation-of-polygon
 
-```c++
-class Solution {
-public:
-    long long maxAlternatingSum(vector<int>& nums) {
-        int n = nums.size();
-        long long f0 = 0,f1 = -1e8;
-        for (int i = 0; i < n; ++i) {
-            long long nf0 = max(f0,f1 - nums[i]);
-            f1 = max(f1,f0+nums[i]);
-            f0 = nf0;
-        }
-        return max(f0,f1);
-    }
-};
+```python
+class Solution:
+    def minScoreTriangulation(self, values: List[int]) -> int:
+        n  = len(values)
+        
+        @cache
+        def dfs(i,j):
+            if i + 1 == j:
+                return 0
+            res = inf
+            for k in range(i+1,j):
+                res = min(res, dfs(i,k) + dfs(k,j) + values[i] * values[j] * values[k])
+            return res
+
+        return dfs(0,n-1)
+```
+
+### guess-number-higher-or-lower-ii
+
+```python
+class Solution:
+    def getMoneyAmount(self, n: int) -> int:
+        @cache
+        def dfs(i,j):
+            if i>=j:
+                return 0
+            res = inf
+            for k in range(i,j+1):
+                res = min(res,max(dfs(i,k-1),dfs(k+1,j))+k)
+            return res 
+        return dfs(1,n)
+```
+
+### minimum-insertion-steps-to-make-a-string-palindrome
+
+```python
+class Solution:
+    def minInsertions(self, s: str) -> int:
+        n  = len(s)
+        @cache
+        def dfs(i,j):
+            if i>j:
+                return 0
+            if i==j:
+                return 1
+            if s[i] == s[j]:
+                return dfs(i+1,j-1)+2
+            return max(dfs(i,j-1),dfs(i+1,j))
+        return n-dfs(0,n-1)
 ```
