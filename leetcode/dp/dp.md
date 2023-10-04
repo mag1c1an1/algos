@@ -448,8 +448,7 @@ class Solution:
 
 ## group threee
 
-1312 1771 1547 1000
-
+1000
 longest-palindromic-subsequence
 
 ```python
@@ -466,6 +465,19 @@ class Solution:
                 return dfs(i+1,j-1) + 2
             return max(dfs(i+1,j),dfs(i,j-1))
         return dfs(0,n-1)
+// dp
+class Solution:
+    def longestPalindromeSubseq(self, s: str) -> int:
+        n = len(s)
+        f = [[0] * n for _ in range(n)]
+        for i in range(n-1,-1,-1):
+            f[i][i] = 1
+            for j in range(i+1,n):
+                if s[i] == s[j]:
+                    f[i][j] = f[i+1][j-1]+2
+                else:
+                    f[i][j] = max(f[i][j-1],f[i+1][j])
+        return f[0][n-1]
 ```
 
 ### minimum-score-triangulation-of-polygon
@@ -519,4 +531,78 @@ class Solution:
                 return dfs(i+1,j-1)+2
             return max(dfs(i,j-1),dfs(i+1,j))
         return n-dfs(0,n-1)
+```
+
+### maximize-palindrome-length-from-subsequences
+
+```python
+class Solution:
+    def longestPalindrome(self, word1: str, word2: str) -> int:
+        s = word1 + word2
+        n = len(s)
+        ans = 0
+        @cache
+        def dfs(i,j):
+            if i>j:return 0
+            if i == j:return 1
+            if s[i] == s[j]:
+                res = dfs(i+1,j-1)+2
+                if i < len(word1) <= j:
+                    nonlocal ans
+                    ans = max(ans, res)
+                return res
+            return max(dfs(i+1,j),dfs(i,j-1))
+        dfs(0,n-1)
+        return ans
+```
+
+### minimum-cost-to-cut-a-stick
+
+```python
+class Solution:
+    def minCost(self, n: int, cuts: List[int]) -> int:
+        @cache
+        def dfs(i,j):
+            if i+1 >= j:
+                return 0
+            res = inf
+            for k in cuts:
+                if i < k < j:
+                    res = min(res,dfs(i,k)+dfs(k,j)+j-i)
+            return res if res != inf else 0
+        return dfs(0,n)
+//  
+class Solution:
+    def minCost(self, n: int, cuts: List[int]) -> int:
+        cuts = [0] + sorted(cuts) + [n]
+        def dfs(i,j):
+            if i +1 >= j: 
+                return 0
+            res = inf
+            for k in range(i+1,j):
+                res = min(res,dfs(i,k)+dfs(k,j) + cuts[j]-cuts[i])
+            return res 
+        return dfs(0,len(cuts)-1)
+
+
+```
+
+### minimum-cost-to-merge-stones
+
+```python
+class Solution:
+    def mergeStones(self, stones: List[int], k: int) -> int:
+        n = len(stones)
+        if (n-1) % (k-1) != 0:
+            return -1
+        s = list(accumulate(stones,initial=0))
+        @cache
+        def dfs(i,j,p):
+            if p == 1:
+                return 0 if i==j else dfs(i,j,k) + s[j+1]-s[i]
+            res = inf
+            for m in range(i,j,k-1):
+                res = min(res, dfs(i,m,1) + dfs(m+1,j,p-1))
+            return res
+        return dfs(0,n-1,1)
 ```
