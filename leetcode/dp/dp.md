@@ -606,3 +606,97 @@ class Solution:
             return res
         return dfs(0,n-1,1)
 ```
+
+
+687 1617 2538
+diameter-of-binary-tree
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def diameterOfBinaryTree(self, root: Optional[TreeNode]) -> int:
+        ans = 0
+        def dfs(node):  
+            if node is None:
+                return -1 
+            lv ,rv= dfs(node.left),dfs(node.right)
+            nonlocal ans
+            ans = max(ans,lv+rv+2)
+            return max(lv,rv)+1
+        dfs(root)
+        return ans
+```
+binary-tree-maximum-path-sum
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def maxPathSum(self, root: Optional[TreeNode]) -> int:
+        ans = -inf
+        def dfs(node):
+            if node is None:
+                return 0 
+            lv, rv  = dfs(node.left),dfs(node.right)
+            nonlocal ans
+            ans = max(ans,lv+rv+node.val)
+            return max(0,max(lv,rv)+node.val) 
+        dfs(root)
+        return ans
+```
+longest-path-with-different-adjacent-characters
+```python
+class Solution:
+    def longestPath(self, parent: List[int], s: str) -> int:
+        n  = len(parent)
+        g = [[] for _ in range(n)]
+        for i in range(1,n):
+            g[parent[i]].append(i)
+        ans = 0
+        def dfs(x):
+            x_len = 0 
+            nonlocal ans
+            for y in g[x]:
+                y_len = dfs(y) + 1
+                if s[x] != s[y]:
+                    ans = max(ans,x_len + y_len)
+                    x_len = max(x_len,y_len) 
+            return x_len
+        dfs(0)
+        return ans + 1
+```
+
+### longest-univalue-path
+
+```python
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def longestUnivaluePath(self, root: Optional[TreeNode]) -> int:
+        ans = 0
+        def dfs(node):
+            if node is None:
+                return -1; 
+            ll = dfs(node.left) + 1
+            rl = dfs(node.right) + 1
+            if node.left and node.left.val != node.val: ll = 0
+            if node.right and node.right.val != node.val: rl = 0
+            nonlocal ans
+            ans = max(ans,ll+rl)
+            return max(ll,rl)
+        dfs(root)
+        return an
+```
+
+
